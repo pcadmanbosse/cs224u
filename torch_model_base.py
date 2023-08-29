@@ -341,13 +341,14 @@ class TorchModelBase:
 
         self.model.train()
         self.optimizer.zero_grad()
+        number_batches = len(dataloader)
 
         for iteration in range(1, self.max_iter+1):
 
             epoch_error = 0.0
 
             for batch_num, batch in enumerate(dataloader, start=1):
-
+                utils.progress_bar(f" epoch {iteration}: batch {batch_num} of {number_batches}", verbose=True)
                 batch = [x.to(self.device) for x in batch]
 
                 X_batch = batch[: -1]
