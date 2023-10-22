@@ -1,0 +1,2 @@
+We evaluate the models using two metrics. First, we measure the ROUGE score of the proposed and base models. 
+Because this metric will place more biais than desired on correct "formatting" of the answers, i.e. following the "Pesticide X was found on plots A, B", rather than the factual accuracy of the labels X, A and B, we also extract these fields from the answers using regex and measure the F1-Score. 

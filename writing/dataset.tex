@@ -1,0 +1,38 @@
+The dataset is constructed on the basis of several raw sources of information.
+First, a list of the probihibited ingredients in pesticides and fertilizers, as defined by rainforest alliance.
+Next, a mapping of common pesticide brands and names to their relevant active ingredients, collated by experts at OpenSC.
+Finally, a set of 150 documents, of three different types (purchase orders, which are invoices of bought products, 
+service orders, which are a summary of products applied to farm plots and finally agronomist recommendations, which are
+the proposed application plan provided by agronomists). These documents were OCRed using AmazonTextract, and then 
+went through pre-processing steps to retrieve the plots numbers, active ingredients and products. This was not 
+conducive on 2/3 of the documents, that were manually labelled using LabelStudio. 
+However, these documents all allow to construct several sets of data, as they are used both for pesticide checks 
+and organic fertilizer checks. 
+The reported documents contain an obvious limitation which is the lack of "positive" examples, that is, of documents
+containing either an organic fertlilizer or a prohibited pesticide. 
+To circumvent this limitation, we construct the dataset in the following way:
+We take the raw text OCRed from the documents as well as the raw document to extract from (organic fertilizers or pesticides) as
+well as the list of product mappings. 
+For each training example, we shuffle the list of ingredients. 
+For half of the documents, one ingredient from the prohibited/organic list will be swapped out for one ingredient from 
+the document to query in. This allows us to construct a dataset with a 50/50 split of positive and negative examples.
+Noise will be added to the words to mimic more closely real-world constraints (many typos and imprecisions can exist).
+In addition, random terms will sometimes be used in-lieu of "real" ingredients (to train the model to learn 
+QA within the documents and not to recognise specific terms).
+?? Learn embeddings ??
+For instance, consider this (schematic) example:
+In the standard case, with no transformation: 
+Document:["We apply Chloride, Benzulam and Azote to plots 1 2 and 3"]. 
+Scorecard: ["Nitrogen, dipruzolam, zinc"]
+Output: []
+
+In the transformed case: 
+Document:["We apply Chloride, Benzulam and Azote to plots 1 2 and 3"]. 
+Scorecard: ["Dipruzolam, Chloride, Nitrogen"]
+Output: [["Chloride"], ["1", "2", "3"]]
+
+We also further pre-process some examples by applying this transformation to construct indirect links:
+Product name -> Ingredient -> Output
+
+Our test set is composed of 40 documents and associated scorecards, including 10 of a format never seen before in the training set. This data is 
+anonymised as it will be passed to external systems. 

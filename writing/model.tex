@@ -1,0 +1,42 @@
+As a model, we base of a pretrained T5 model for multi-span QA. 
+Or QLORA? 
+
+
+Model plan: 
+
+For each example, we vectorise each ingredient into 386 dimensional vector. For products, we vectorise them as 
+the sum of every ingredient they contain. 
+For this, we use a pre-trained model for QA. 
+We add a 'none' vector. 
+
+We then train an encoder and a decoder: 
+Encoder from document to 386 dimensional vector. 
+Decoder will predict the number of bad ingredients in this encoder.(N)
+We then take the N closest vectors using co-sine similarity from the database. 
+
+Loss:
+Decoder simple cross entropy
+Encoder, can sum loss on expected results. 
+
+
+
+## V2 
+Model plan: 
+
+We tokenize input documents and queries using existing tokenizers. 
+We then feed into a QLORA optimized mistral7B model, fine-tuning on our examples using logistic regression with
+cross entropy, based on pre-generated output texts, i.e :
+Y: 
+"There are x, y, z pesticides on plots A, B, C" [EOS]
+"There are no fertilizers" [EOS]
+"There are no pesticides" [EOS]
+"There are x, y, z fertilizers" [EOS]
+
+Input sequences are: 
+[Context][SEP][Document][Q][Query]
+
+Output sequences: 
+as above
+
+For evaluation: 
+Use the bleu score of the output sequences. 
